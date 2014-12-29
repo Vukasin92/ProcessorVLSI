@@ -1,10 +1,15 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.std_logic_textio.all;
+use std.textio.all;
 
 use work.processor_pkg.all;
 
 entity if_stage is
+	generic(
+		LOAD_FILE_NAME : string  := "insInit.txt"
+	);
 	port(
 		in_clk     : in  std_logic;
 		in_rst     : in  std_logic;
@@ -26,10 +31,14 @@ architecture RTL of if_stage is
 	
 	signal output_data : if_out_data_t;
 	
-	function init return register_t is
+	impure function init return register_t is
 		variable ret : register_t;
+		file load_file : text open read_mode is LOAD_FILE_NAME;
+		variable rdline : line;
 	begin
 		ret.pc := (others => '0');
+		readline(load_file, rdline);
+		hread(rdline, ret.pc);
 		return ret;
 	end function init;
 	

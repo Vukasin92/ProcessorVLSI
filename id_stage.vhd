@@ -54,7 +54,7 @@ begin
 	out_data <= output_data;
 	out_mem <= output_mem;
 	
-	comb:process (register_reg, in_data, in_control) is
+	comb:process (register_reg, in_data, in_control, in_mem) is
 		variable decode_words : word_array_t;
 	begin
 		register_next <= register_reg;

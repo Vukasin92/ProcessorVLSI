@@ -17,6 +17,9 @@ architecture RTL of processor_tsb is
 
 	signal frontend_in_data    : frontend_in_data_t;
 	signal frontend_in_control : frontend_in_control_t;
+	
+	signal mem_in_addresses : address_array_t;
+	signal mem_out_words   : word_array_t;
 begin
 	system_clock : process is
 		variable clk : std_logic;
@@ -36,7 +39,6 @@ begin
 	begin
 		frontend_in_data.jump_pc <= (others => '0');
 		frontend_in_control.jump <= '0';
-		frontend_in_control.test_stall <= '0';
 		
 		wait for TRESET + TCLK*16 + 1 ns;
 		frontend_in_control.jump <= '1';
@@ -47,12 +49,22 @@ begin
 	end process input;
 		
 
+	instruction_mem_inst : entity work.instruction_mem
+		port map(
+			in_clk => clock,
+			in_rst => reset,
+			in_addresses  => mem_in_addresses,
+			out_words  => mem_out_words
+		);
+
 	frontend_inst : entity work.frontend
 		port map(
 			in_clk     => clock,
 			in_rst     => reset,
 			in_data    => frontend_in_data,
-			in_control => frontend_in_control
+			in_control => frontend_in_control,
+			in_mem => mem_out_words,
+			out_mem => mem_in_addresses
 		);
 
 end architecture RTL;

@@ -39,8 +39,19 @@ begin
 	begin
 		frontend_in_data.jump_pc <= (others => '0');
 		frontend_in_control.jump <= '0';
+		frontend_in_control.taken1 <= '0';
+		frontend_in_control.taken2 <= '0';
+		wait for TRESET + TCLK*12 + 1 ns;
+		--frontend_in_control.taken2 <= '1';
+		--wait until rising_edge(clock);
+		--wait for 2*TCLK;
+		--frontend_in_control.taken2 <= '0';
+		frontend_in_control.taken1 <= '1';
+		wait until rising_edge(clock);
+		wait for 2*TCLK;
+		frontend_in_control.taken1 <= '0';
 		
-		wait for TRESET + TCLK*16 + 1 ns;
+		wait for TCLK*4;
 		frontend_in_control.jump <= '1';
 		wait until rising_edge(clock);
 		frontend_in_control.jump <= '0';

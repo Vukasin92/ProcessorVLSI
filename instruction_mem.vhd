@@ -15,8 +15,8 @@ entity instruction_mem is
 		in_clk : in std_logic;
 		in_rst : in std_logic;
 		
-		in_addresses : in address_array_t;
-		out_words   : out word_array_t
+		in_addresses : in ins_memory_address_t;
+		out_words   : out ins_memory_data_t
 	);
 end entity instruction_mem;
 

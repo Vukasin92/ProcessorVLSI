@@ -11,9 +11,9 @@ entity frontend is
 
 		in_data    : in frontend_in_data_t;
 		in_control : in frontend_in_control_t;
-		in_mem     : in  memory_data_t;
+		in_mem     : in  word_array_t;
 
-		out_mem    : out memory_address_t;
+		out_mem    : out address_array_t;
 		out_data : out frontend_out_data_t
 	);
 end entity frontend;
@@ -28,9 +28,9 @@ architecture RTL of frontend is
 
 	signal id_in_data    : id_in_data_t;
 	signal id_in_control : id_in_control_t;
-	signal id_in_mem     : memory_data_t;
+	signal id_in_mem     : ins_memory_data_t;
 	signal id_out_data   : id_out_data_t;
-	signal id_out_mem    : memory_address_t;
+	signal id_out_mem    : ins_memory_address_t;
 	
 	signal fifo_in_data : fifo_in_data_t;
 	signal fifo_out_data : fifo_out_data_t;

@@ -17,6 +17,7 @@ package processor_pkg is
 	
 	type reg_addr_array_t is array (0 to PARALEL_READS_FROM_REG_FILE*ISSUE_WIDTH-1) of reg_addr_t; --addresses for reading
 	type reg_write_addr_array_t is array(0 to PARALEL_WRITES_TO_REG_FILE-1) of reg_addr_t;
+	type reg_write_array_t is array(0 to PARALEL_WRITES_TO_REG_FILE-1) of word_t;
 	
 	type reg_array_t is array (0 to PARALEL_READS_FROM_REG_FILE*ISSUE_WIDTH-1) of word_t;
 	
@@ -177,6 +178,7 @@ package processor_pkg is
 	type reg_file_in_data_t is record
 		read_addresses : reg_addr_array_t;
 		write_addresses : reg_write_addr_array_t;
+		data : reg_write_array_t;
 	end record reg_file_in_data_t;
 	--data mem
 	subtype data_mem_address_t is address_t;

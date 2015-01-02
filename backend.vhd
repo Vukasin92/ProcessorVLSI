@@ -61,6 +61,6 @@ begin
 			     out_data   => rf_out_data);
 			     
 	rf_in_data.read_addresses <= of_out_reg;
-	-- TODO : connect write_addresses and wr signals to reg_file
+	-- TODO : connect write_data, write_addresses and wr signals to reg_file
 	of_in_reg <= rf_out_data;
 end architecture RTL;

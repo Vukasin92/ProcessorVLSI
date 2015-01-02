@@ -74,5 +74,7 @@ begin
 	--TODO : instantiate control unit and connect, change next lines
 	fe_in_control.taken1 <= '0';
 	fe_in_control.taken2 <= '0';
+	be_in_control.taken1 <= '0';
+	be_in_control.taken2 <= '0';
 	be_in_control.commit <= (others => '0');
 end architecture RTL;

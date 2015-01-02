@@ -76,24 +76,25 @@ begin
 		
 		for i in register_reg.instructions'range loop
 			register_next.instructions(i) <= in_data.instructions(i);
-			
-			if (register_reg.instructions(i).valid='1') then
-				case register_reg.instructions(i).op is
-				when ANDD | SUB | ADD | ADC | SBC | CMP | SSUB | SADD | SADC | SSBC | MOV | NOTT | SL | SR | ASR | SMOV =>
-					if (i=0) then
-						en := en or "0001";
-					else
-						en := en or "0010";
-					end if;
-				when LOAD | STORE => 
-					en := en or "0100";
-				when BEQ | BGT | BHI | BAL | BLAL =>
-					en := en or "1000";
-				when STOP =>
-					null;--TODO
-				when ERROR => 
-					null;--TODO
-				end case;
+			if ((in_control.taken1='1' and i=0) or (in_control.taken2='1')) then --if one instruction is to be executed, do this only for first one
+				if (register_reg.instructions(i).valid='1') then
+					case register_reg.instructions(i).op is
+					when ANDD | SUB | ADD | ADC | SBC | CMP | SSUB | SADD | SADC | SSBC | MOV | NOTT | SL | SR | ASR | SMOV =>
+						if (i=0) then
+							en := en or "0001";
+						else
+							en := en or "0010";
+						end if;
+					when LOAD | STORE => 
+						en := en or "0100";
+					when BEQ | BGT | BHI | BAL | BLAL =>
+						en := en or "1000";
+					when STOP =>
+						null;--TODO
+					when ERROR => 
+						null;--TODO
+					end case;
+				end if;
 			end if;
 		end loop;
 		

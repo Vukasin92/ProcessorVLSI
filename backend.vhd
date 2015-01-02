@@ -50,6 +50,8 @@ begin
 	
 	of_in_data.instructions <= in_data.instructions;
 	of_in_control.flush <= jump; --TODO : connect to jump from branch unit
+	of_in_control.taken1 <= in_control.taken1;
+	of_in_control.taken2 <= in_control.taken2;
 	--TODO : of_in_reg <= in_reg;
 	reg_file_inst : entity work.reg_file
 		port map(in_clk     => clock,

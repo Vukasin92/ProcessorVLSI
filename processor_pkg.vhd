@@ -124,6 +124,8 @@ package processor_pkg is
 	
 	type backend_in_control_t is record
 		commit : std_logic_vector(FUNCTIONAL_UNITS-1 downto 0);
+		taken1 : std_logic;
+		taken2 : std_logic;
 	end record backend_in_control_t;
 
 	type fu_status_t is record
@@ -152,6 +154,8 @@ package processor_pkg is
 	
 	type of_in_control_t is record
 		flush : std_logic;
+		taken1 : std_logic;
+		taken2 : std_logic;
 	end record of_in_control_t;
 	
 	subtype operand is word_t;

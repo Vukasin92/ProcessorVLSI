@@ -46,7 +46,7 @@ begin
 			out_mem => fe_out_mem,
 			out_data => fe_out_data
 		);
-		
+	
 	backend_inst : entity work.backend
 		port map(in_clk          => clock,
 			     in_rst          => reset,
@@ -66,6 +66,7 @@ begin
 	clock <= in_clk;
 	reset <= in_rst;
 	fe_in_mem <= in_data_ins_mem;
+	out_data_ins_mem <= fe_out_mem;
 	be_in_data_mem <= in_data_data_mem;
 	be_in_control_mem <= in_control_data_mem;
 	out_data_ins_mem <= fe_out_mem;

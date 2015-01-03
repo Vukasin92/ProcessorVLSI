@@ -73,7 +73,7 @@ begin
 			in_addresses  => mem_in_addresses,
 			out_words  => mem_out_words
 		);
-
+	--TODO : Instantiate processor entity instead frontend+backend - after adding control unit (finishing)
 	frontend_inst : entity work.frontend
 		port map(
 			in_clk     => clock,
@@ -111,5 +111,5 @@ begin
 	fe_in_control.taken2 <= taken2;
 	be_in_control.taken1 <= taken1;
 	be_in_control.taken2 <= taken2;
-	be_in_control.commit <= (others => '0');
+	be_in_control.commit <= (others => '1');
 end architecture RTL;

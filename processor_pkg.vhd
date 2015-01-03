@@ -7,7 +7,7 @@ package processor_pkg is
 	constant REG_NUMBER_EXP : integer := 5;
 	constant FUNCTIONAL_UNITS : integer := 4;
 	constant PARALEL_READS_FROM_REG_FILE : integer := 2;
-	constant PARALEL_WRITES_TO_REG_FILE : integer  := 2;
+	constant PARALEL_WRITES_TO_REG_FILE : integer  := 3;
 
 	subtype address_t is std_logic_vector(31 downto 0);
 
@@ -120,6 +120,55 @@ package processor_pkg is
 	
 	--BACKEND
 	
+	--FUs
+	
+	--branch unit
+	
+	type branch_in_control_t is record
+		commit : std_logic;
+		enable : std_logic;
+		selectInstruction : std_logic;
+	end record branch_in_control_t;
+	
+	type branch_in_data_t is record
+		instructions : instruction_array_t;
+		operands : word_array_t; --only imm operands will be connected
+	end record branch_in_data_t;
+	
+	type branch_out_control_t is record
+		busy : std_logic;
+		jump : std_logic;
+	end record branch_out_control_t;
+	
+	type branch_out_data_t is record
+		--TODO : add rob number maybe? So control units knows which branch instruction has made jump
+		jump_pc : address_t;
+	end record branch_out_data_t;
+		
+	--alu
+	
+	type alu_out_control_t is record
+		busy : std_logic;
+		wr : std_logic;
+	end record alu_out_control_t;
+	
+	type alu_in_control_t is record
+		commit : std_logic;
+		enable : std_logic;
+	end record alu_in_control_t;
+	
+	type alu_out_data_t is record
+		write_address : reg_addr_t;
+		alu_out : word_t;
+	end record alu_out_data_t;
+	
+	type alu_in_data_t is record
+		instruction : instruction_t;
+		operands : operand_bundle_t;	
+	end record alu_in_data_t;
+	
+	--backend
+	
 	type backend_in_data_t is record
 		instructions : instruction_array_t;
 	end record backend_in_data_t;
@@ -128,19 +177,17 @@ package processor_pkg is
 		commit : std_logic_vector(FUNCTIONAL_UNITS-1 downto 0);
 		taken1 : std_logic;
 		taken2 : std_logic;
+		selectInstruction : std_logic_vector(1 downto 0);
 	end record backend_in_control_t;
 
-	type fu_status_t is record
+	type alu_status_t is record
 		busy : std_logic;
-		--TODO : add status signals for LD/ST unit
 	end record;
-	
-	subtype ls_unit_status_t is fu_status_t;
 
-	type fu_status_array_t is array(0 to FUNCTIONAL_UNITS-1) of fu_status_t;
+	type alu_status_array_t is array(0 to 1) of alu_status_t;
 
 	type backend_out_control_t is record
-		status : fu_status_array_t;
+		alu_statuses : alu_status_array_t; --TODO : see what status signal FUs need to send (when writing Ctrl unit) - see all references
 		jump : std_logic;
 	end record backend_out_control_t;
 	
@@ -210,6 +257,7 @@ package body processor_pkg is
 	function decode(inst : undecoded_instruction_t; word : word_t) return instruction_t is
 		variable ret : instruction_t;
 	begin
+		--TODO : add spot for reorder buffer index number to fill when instruction is taken from fifo
 		ret.pc    := inst.pc;
 		ret.valid := inst.valid;
 		ret.word  := word;

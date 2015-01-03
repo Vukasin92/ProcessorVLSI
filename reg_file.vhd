@@ -29,7 +29,7 @@ architecture RTL of reg_file is
 		variable ret : register_t;
 	begin
 		for i in ret.registers'range loop
-			ret.registers(i) := (others => '0');
+			ret.registers(i) := (others => '0'); -- for test : unsigned_add(Std_logic_vector(To_unsigned(i, 32)),1);
 		end loop;
 		return ret;
 	end function init;
@@ -50,7 +50,7 @@ begin
 		out_data <= output_data;
 		register_next <= register_reg;
 		
-		for i in 0 to PARALEL_READS_FROM_REG_FILE-1 loop
+		for i in 0 to PARALEL_READS_FROM_REG_FILE*ISSUE_WIDTH-1 loop
 			output_data(i) <= register_reg.registers(To_integer(Unsigned(in_data.read_addresses(i))));
 		end loop;
 		
@@ -58,7 +58,7 @@ begin
 			if (in_control.wr(i)='1') then
 				register_next.registers(To_integer(Unsigned(in_data.write_addresses(i)))) <= in_data.data(i);
 				
-				for j in 0 to PARALEL_READS_FROM_REG_FILE-1 loop
+				for j in 0 to PARALEL_READS_FROM_REG_FILE*ISSUE_WIDTH-1 loop
 					if (in_data.read_addresses(j) = in_data.write_addresses(i)) then
 						output_data(j) <= in_data.data(i); --bypass write value to read port
 					end if;

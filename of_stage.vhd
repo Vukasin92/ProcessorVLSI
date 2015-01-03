@@ -22,6 +22,8 @@ architecture RTL of of_stage is
 	type register_t is record
 		instructions : instruction_array_t;
 		operands : operand_bundle_array_t;
+		taken1 : std_logic;
+		taken2 : std_logic;
 	end record register_t;
 	
 	signal register_reg : register_t;
@@ -76,19 +78,19 @@ begin
 		
 		for i in register_reg.instructions'range loop
 			register_next.instructions(i) <= in_data.instructions(i);
-			if ((in_control.taken1='1' and i=0) or (in_control.taken2='1')) then --if one instruction is to be executed, do this only for first one
+			if ((register_reg.taken1='1' and i=0) or (register_reg.taken2='1')) then --if one instruction is to be executed, do this only for first one
 				if (register_reg.instructions(i).valid='1') then
 					case register_reg.instructions(i).op is
-					when ANDD | SUB | ADD | ADC | SBC | CMP | SSUB | SADD | SADC | SSBC | MOV | NOTT | SL | SR | ASR | SMOV =>
+					when ANDD | SUB | ADD | ADC | SBC | CMP | SSUB | SADD | SADC | SSBC | MOV | NOTT | SL | SR | ASR | SMOV | MOVI =>
 						if (i=0) then
-							en := en or "0001";
+							en(0) := '1';
 						else
-							en := en or "0010";
+							en(1) := '1';
 						end if;
 					when LOAD | STORE => 
-						en := en or "0100";
+						en(2) := '1';
 					when BEQ | BGT | BHI | BAL | BLAL =>
-						en := en or "1000";
+						en(3) := '1';
 					when STOP =>
 						null;--TODO
 					when ERROR => 
@@ -104,6 +106,8 @@ begin
 			end loop;
 		end if;
 		
+		register_next.taken1 <= in_control.taken1;
+		register_next.taken2 <= in_control.taken2;
 		output_control.enable <= en;
 		output_data.instructions <= register_reg.instructions;
 		output_data.operands <= register_reg.operands;	

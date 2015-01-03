@@ -58,7 +58,7 @@ package processor_pkg is
 		flush : std_logic;
 	end record id_in_control_t;
 
-	type mnemonic_t is (ANDD, SUB, ADD, ADC, SBC, CMP, SSUB, SADD, SADC, SSBC, MOV, NOTT, SL, SR, ASR, SMOV, LOAD, STORE,
+	type mnemonic_t is (ANDD, SUB, ADD, ADC, SBC, CMP, SSUB, SADD, SADC, SSBC, MOV, NOTT, SL, SR, ASR, MOVI, SMOV, LOAD, STORE,
 		BEQ, BGT, BHI, BAL, BLAL, STOP, ERROR);
 	type kind_t is (DPR, DPI, BBL, S);
 	type instruction_t is record
@@ -68,6 +68,7 @@ package processor_pkg is
 		valid : std_logic;
 		reg_src1 : reg_addr_t;
 		reg_src2 : reg_addr_t;
+		reg_dst : reg_addr_t;
 		kind : kind_t;
 	end record instruction_t;
 
@@ -216,57 +217,85 @@ package body processor_pkg is
 		case word(31 downto 27) is
 			when "00000" =>
 				ret.op := ANDD;
+				ret.kind := DPR;
 			when "00001" => 
 				ret.op := SUB;
+				ret.kind := DPR;
 			when "00010" => 
 				ret.op := ADD;
+				ret.kind := DPR;
 			when "00011" => 
 				ret.op := ADC;
+				ret.kind := DPR;
 			when "00100" => 
 				ret.op := SBC;
+				ret.kind := DPR;
 			when "00101" => 
 				ret.op := CMP;
+				ret.kind := DPR;
 			when "00110" => 
 				ret.op := SSUB;
+				ret.kind := DPR;
 			when "00111" => 
 				ret.op := SADD;
+				ret.kind := DPR;
 			when "01000" => 
 				ret.op := SADC;
+				ret.kind := DPR;
 			when "01001" =>
 				ret.op := SSBC;
+				ret.kind := DPR;
 			when "01010" =>
 				ret.op := MOV;
+				ret.kind := DPR;
 			when "01011" => 
 				ret.op := NOTT;
+				ret.kind := DPR;
 			when "01100" =>
 				ret.op := SL;
+				ret.kind := DPR;
 			when "01101" => 
 				ret.op := SR;
+				ret.kind := DPR;
 			when "01110" => 
 				ret.op := ASR;
+				ret.kind := DPR;
 			when "01111" => 
-				ret.op := MOV;
+				ret.op := MOVI;
+				ret.kind := DPI;
 			when "10000" => 
 				ret.op := SMOV;
+				ret.kind := DPI;
 			when "10100" =>
 				ret.op := LOAD;
+				ret.kind := DPR;
 			when "10101" => 
 				ret.op := STORE;
+				ret.kind := DPR;
 			when "11000" => 
 				ret.op := BEQ;
+				ret.kind := BBL;
 			when "11001" => 
 				ret.op := BGT;
+				ret.kind := BBL;
 			when "11010" => 
 				ret.op := BHI;
+				ret.kind := BBL;
 			when "11011" => 
 				ret.op := BAL;
+				ret.kind := BBL;
 			when "11100" => 
 				ret.op := BLAL;
+				ret.kind := BBL;
 			when "11111" => 
 				ret.op := STOP;
+				ret.kind := S;
 			when others =>
 				ret.op := ERROR;
 		end case;
+		ret.reg_src1 := word(26 downto 22);
+		ret.reg_src2 := word(16 downto 12);
+		ret.reg_dst := word(21 downto 17);
 		return ret;
 	end function decode;
 

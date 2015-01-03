@@ -107,7 +107,7 @@ begin
 		
 		--output logic
 		for i in out_data.instuctions'range loop
-			output_data.instuctions(i) <= register_reg.fifo_array(To_integer(Unsigned(register_reg.w_ptr)));
+			output_data.instuctions(i) <= register_reg.fifo_array(To_integer(Unsigned(unsigned_add(register_reg.r_ptr,i))));
 		end loop;
 		register_next.count <= cnt;
 	end process comb;

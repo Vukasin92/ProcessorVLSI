@@ -6,8 +6,8 @@ package processor_pkg is
 	constant ISSUE_WIDTH : integer := 2;
 	constant REG_NUMBER_EXP : integer := 5;
 	constant FUNCTIONAL_UNITS : integer := 4;
-	constant PARALEL_READS_FROM_REG_FILE : integer := 2;
-	constant PARALEL_WRITES_TO_REG_FILE : integer  := 3;
+	constant PARALEL_READS_FROM_REG_FILE : integer := 3;
+	constant PARALEL_WRITES_TO_REG_FILE : integer  := 4;
 
 	subtype address_t is std_logic_vector(31 downto 0);
 
@@ -26,6 +26,7 @@ package processor_pkg is
 	type operand_bundle_t is record
 		reg_a : operand_t;
 		reg_b : operand_t;
+		reg_c : operand_t;
 		imm : operand_t;
 	end record operand_bundle_t;
 	
@@ -133,16 +134,20 @@ package processor_pkg is
 	type branch_in_data_t is record
 		instructions : instruction_array_t;
 		operands : word_array_t; --only imm operands will be connected
+		csr : word_t;
 	end record branch_in_data_t;
 	
 	type branch_out_control_t is record
 		busy : std_logic;
 		jump : std_logic;
+		wr : std_logic;
 	end record branch_out_control_t;
 	
 	type branch_out_data_t is record
 		--TODO : add rob number maybe? So control units knows which branch instruction has made jump
 		jump_pc : address_t;
+		write_address : reg_addr_t; -- always 31 - link register
+		write_data : word_t;
 	end record branch_out_data_t;
 		
 	--alu
@@ -150,6 +155,7 @@ package processor_pkg is
 	type alu_out_control_t is record
 		busy : std_logic;
 		wr : std_logic;
+		wr_csr : std_logic;
 	end record alu_out_control_t;
 	
 	type alu_in_control_t is record
@@ -160,11 +166,13 @@ package processor_pkg is
 	type alu_out_data_t is record
 		write_address : reg_addr_t;
 		alu_out : word_t;
+		new_csr : word_t;
 	end record alu_out_data_t;
 	
 	type alu_in_data_t is record
 		instruction : instruction_t;
-		operands : operand_bundle_t;	
+		operands : operand_bundle_t;
+		csr : word_t;	
 	end record alu_in_data_t;
 	
 	--backend
@@ -186,8 +194,19 @@ package processor_pkg is
 
 	type alu_status_array_t is array(0 to 1) of alu_status_t;
 
+	type lsu_status_t is record
+		busy : std_logic;
+		is_load : std_logic;
+	end record lsu_status_t;
+	
+	type bu_status_t is record
+		busy : std_logic;
+	end record bu_status_t;
+
 	type backend_out_control_t is record
 		alu_statuses : alu_status_array_t; --TODO : see what status signal FUs need to send (when writing Ctrl unit) - see all references
+		lsu_status : lsu_status_t;
+		bu_status : bu_status_t;
 		jump : std_logic;
 	end record backend_out_control_t;
 	
@@ -199,12 +218,14 @@ package processor_pkg is
 	
 	type of_in_data_t is record
 		instructions : instruction_array_t;
+		new_csr : word_array_t;
 	end record of_in_data_t;
 	
 	type of_in_control_t is record
 		flush : std_logic;
 		taken1 : std_logic;
 		taken2 : std_logic;
+		csr_wr : std_logic_vector(1 downto 0);
 	end record of_in_control_t;
 	
 	subtype operand is word_t;
@@ -212,6 +233,7 @@ package processor_pkg is
 	type of_out_data_t is record
 		operands : operand_bundle_array_t;
 		instructions : instruction_array_t;
+		csr : word_t;
 	end record of_out_data_t;
 	
 	type of_out_control_t is record
@@ -229,8 +251,6 @@ package processor_pkg is
 		data : reg_write_array_t;
 	end record reg_file_in_data_t;
 	--data mem
-	subtype data_mem_address_t is address_t;
-	subtype data_mem_data_t is word_t;
 	
 	type data_mem_out_control_t is record
 		fc : std_logic;
@@ -241,16 +261,68 @@ package processor_pkg is
 		wr : std_logic;
 	end record data_mem_in_control_t;
 	
+	type backend_out_data_data_mem_t is record
+		addr : address_t;
+		data : word_t;
+	end record backend_out_data_data_mem_t;
+	
 	subtype backend_in_control_data_mem_t is data_mem_out_control_t;
 	subtype backend_out_control_data_mem_t is data_mem_in_control_t;
 	subtype processor_in_control_data_mem is backend_in_control_data_mem_t;
 	subtype processor_out_control_data_mem is backend_out_control_data_mem_t;
+	subtype processor_out_data_data_mem is backend_out_data_data_mem_t;
+	
+	--ls unit
+	
+	subtype ls_unit_in_control_mem_t is backend_in_control_data_mem_t;
+	subtype ls_unit_out_control_mem_t is backend_out_control_data_mem_t;
+	type ls_unit_out_data_mem_t is record
+		addr : address_t;
+		data : word_t;
+	end record ls_unit_out_data_mem_t;
+	
+	type ls_unit_in_control_t is record
+		enable : std_logic;
+		commit : std_logic;
+		selectInstruction : std_logic;
+	end record ls_unit_in_control_t;
+	
+	type ls_unit_out_control_t is record
+		busy : std_logic;
+		wr : std_logic;
+		is_load : std_logic;
+	end record ls_unit_out_control_t;
+	
+	type ls_unit_in_data_t is record
+		operands : operand_bundle_array_t;
+		instructions : instruction_array_t;
+	end record ls_unit_in_data_t;
+	
+	type ls_unit_out_data_t is record
+		reg_number : reg_addr_t;
+		reg_value : word_t;
+	end record ls_unit_out_data_t;
 	-----------------------------------------
 	function unsigned_add(data : std_logic_vector; increment : natural) return std_logic_vector;
 
 	function decode(inst : undecoded_instruction_t; word : word_t) return instruction_t;
 		
 	function sign_extend(data : std_logic_vector; length : natural) return std_logic_vector;
+		
+	function setN(csr : word_t) return word_t;
+	function setZ(csr : word_t) return word_t;
+	function setC(csr : word_t) return word_t;
+	function setV(csr : word_t) return word_t;
+		
+	function resetN(csr : word_t) return word_t;
+	function resetZ(csr : word_t) return word_t;
+	function resetC(csr : word_t) return word_t;
+	function resetV(csr : word_t) return word_t;
+	
+	function getN(csr : word_t) return std_logic;
+	function getZ(csr : word_t) return std_logic;
+	function getC(csr : word_t) return std_logic;
+	function getV(csr : word_t) return std_logic;
 end package processor_pkg;
 
 package body processor_pkg is
@@ -261,7 +333,6 @@ package body processor_pkg is
 		ret.pc    := inst.pc;
 		ret.valid := inst.valid;
 		ret.word  := word;
-		--TODO : decode reg numbers and kinds
 		case word(31 downto 27) is
 			when "00000" =>
 				ret.op := ANDD;
@@ -364,4 +435,79 @@ package body processor_pkg is
 		ret := std_logic_vector(resize(signed(data), length));
 		return ret;
 	end function sign_extend;
+	
+	function setN(csr : word_t) return word_t is
+		variable ret : word_t;
+	begin
+		ret := csr;
+		ret(31) := '1';
+		return ret;
+	end function setN;
+	function setZ(csr : word_t) return word_t is
+		variable ret : word_t;
+	begin
+		ret := csr;
+		ret(30) := '1';
+		return ret;
+	end function setZ;
+	function setC(csr : word_t) return word_t is
+		variable ret : word_t;
+	begin
+		ret := csr;
+		ret(29) := '1';
+		return ret;
+	end function setC;
+	function setV(csr : word_t) return word_t is
+		variable ret : word_t;
+	begin
+		ret := csr;
+		ret(28) := '1';
+		return ret;
+	end function setV;
+	
+	function getN(csr : word_t) return std_logic is
+	begin
+		return csr(31);
+	end function getN;
+	function getZ(csr : word_t) return std_logic is
+	begin
+		return csr(30);
+	end function getZ;
+	function getC(csr : word_t) return std_logic is
+	begin
+		return csr(29);
+	end function getC;
+	function getV(csr : word_t) return std_logic is
+	begin
+		return csr(28);
+	end function getV;
+	
+	function resetN(csr : word_t) return word_t is
+		variable ret : word_t;
+	begin
+		ret := csr;
+		ret(31) := '0';
+		return ret;
+	end function resetN;
+	function resetZ(csr : word_t) return word_t is
+		variable ret : word_t;
+	begin
+		ret := csr;
+		ret(30) := '0';
+		return ret;
+	end function resetZ;
+	function resetC(csr : word_t) return word_t is
+		variable ret : word_t;
+	begin
+		ret := csr;
+		ret(29) := '0';
+		return ret;
+	end function resetC;
+	function resetV(csr : word_t) return word_t is
+		variable ret : word_t;
+	begin
+		ret := csr;
+		ret(28) := '0';
+		return ret;
+	end function resetV;
 end package body processor_pkg;

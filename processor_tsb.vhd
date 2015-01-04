@@ -27,11 +27,19 @@ architecture RTL of processor_tsb is
 	
 	signal be_out_control : backend_out_control_t;
 	signal be_out_data : backend_out_data_t;
+	signal be_out_control_mem : backend_out_control_data_mem_t;
+	signal be_out_data_mem : backend_out_data_data_mem_t;
 	
 	signal mem_in_addresses : address_array_t;
 	signal mem_out_words   : word_array_t;
 	
 	signal taken1, taken2 : std_logic;
+	
+	signal dm_in_address : address_t;
+	signal dm_in_data : word_t;
+	signal dm_in_control : data_mem_in_control_t;
+	signal dm_out_data : word_t;
+	signal dm_out_control : data_mem_out_control_t;
 begin
 	system_clock : process is
 		variable clk : std_logic;
@@ -51,21 +59,43 @@ begin
 	begin
 		taken1 <= '0';
 		taken2 <= '0';
+		be_in_control.selectInstruction <= "00";
 		wait for TRESET + TCLK*20 + 1 ns;
-		taken2 <= '1';
-		wait for 6*TCLK;
-		taken2 <= '0';
-		taken1 <= '0';
-		wait for 2*TCLK;
 		taken1 <= '1';
-		wait for TCLK;
 		wait until rising_edge(clock);
 		taken1 <= '0';
-		wait for TCLK*4;
+		wait for TCLK*6 + 1 ns;
+		taken2 <= '1';
+		wait for TCLK*6;
+		taken2 <= '0';
+--		taken2 <= '1';
+--		wait for 6*TCLK;
+--		taken2 <= '0';
+--		taken1 <= '0';
+--		wait for 2*TCLK;
+--		taken1 <= '1';
+--		wait for TCLK;
+--		wait until rising_edge(clock);
+--		taken1 <= '0';
+--		wait for TCLK*4;
 		wait;
 	end process input;
 		
-
+	data_mem_inst : entity work.data_mem
+		port map(in_clk      => clock,
+			     in_rst      => reset,
+			     in_control  => dm_in_control,
+			     in_address  => dm_in_address,
+			     in_data     => dm_in_data,
+			     out_data    => dm_out_data,
+			     out_control => dm_out_control);
+			     
+	dm_in_control <= be_out_control_mem;
+	dm_in_data <= be_out_data_mem.data;
+	dm_in_address <= be_out_data_mem.addr;
+	be_in_control_mem <= dm_out_control;
+	be_in_data_mem <= dm_out_data;
+	
 	instruction_mem_inst : entity work.instruction_mem
 		port map(
 			in_clk => clock,
@@ -92,8 +122,8 @@ begin
 			     in_control      => be_in_control,
 			     in_data_mem     => be_in_data_mem,
 			     in_control_mem  => be_in_control_mem,
-			     out_data_mem    => open,
-			     out_control_mem => open,
+			     out_data_mem    => be_out_data_mem,
+			     out_control_mem => be_out_control_mem,
 			     out_data		 => be_out_data,
 			     out_control     => be_out_control);
 			     

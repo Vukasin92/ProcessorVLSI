@@ -13,7 +13,7 @@ entity processor is
 		in_control_data_mem : in processor_in_control_data_mem;
 		
 		out_data_ins_mem : out address_array_t;
-		out_data_data_mem : out address_t;
+		out_data_data_mem : out processor_out_data_data_mem;
 		out_control_data_mem : out processor_out_control_data_mem
 	);
 end entity processor;
@@ -31,7 +31,7 @@ architecture RTL of processor is
 	signal be_in_control : backend_in_control_t;
 	signal be_in_data_mem : word_t;
 	signal be_in_control_mem : backend_in_control_data_mem_t;
-	signal be_out_data_mem : address_t;
+	signal be_out_data_mem : backend_out_data_data_mem_t;
 	signal be_out_control_mem : backend_out_control_data_mem_t;
 	signal be_out_control : backend_out_control_t;
 	signal be_out_data : backend_out_data_t;

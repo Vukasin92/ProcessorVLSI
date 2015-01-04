@@ -29,7 +29,7 @@ architecture RTL of reg_file is
 		variable ret : register_t;
 	begin
 		for i in ret.registers'range loop
-			ret.registers(i) := (others => '0'); -- for test : unsigned_add(Std_logic_vector(To_unsigned(i, 32)),1);
+			ret.registers(i) := unsigned_add(Std_logic_vector(To_unsigned(i, 32)),1);-- for test : (others => '0');
 		end loop;
 		return ret;
 	end function init;

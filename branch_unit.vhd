@@ -34,6 +34,32 @@ architecture RTL of branch_unit is
 		ret.instructionSelect := '0';
 		return ret;
 	end function init;
+	
+	function condition(data : branch_in_data_t; sel : integer) return std_logic is
+		variable ret : std_logic;
+	begin
+		ret := '0';
+		case data.instructions(sel).op is
+			when BEQ =>
+				if (getZ(data.csr) = '1') then
+					ret := '1';
+				end if;
+			when BGT => 
+				if (((getN(data.csr) xor getV(data.csr)) or getZ(data.csr)) = '0') then
+					ret := '1';
+				end if;
+			when BHI => 
+				if ((getC(data.csr) or getZ(data.csr)) = '0') then
+					ret := '1';
+				end if;
+			when BAL | BLAL =>
+				ret := '1';
+			when others => 
+				report "Wrong instruction executed in branch unit." severity error;
+		end case;
+			
+		return ret;
+	end function condition;
 begin
 	clk:process (in_clk, in_rst) is
 	begin
@@ -46,24 +72,35 @@ begin
 	
 	comb:process (in_data, in_control, output_data, output_control, register_reg) is
 		variable instructionIndex : integer;
+		variable pc : word_t;
 	begin
 		out_data <= output_data;
 		out_control <= output_control;
 		register_next <= register_reg;
 		
-		register_next.instructionSelect <= in_control.selectInstruction;
+		
 		
 		if (register_reg.instructionSelect = '0') then
 			instructionIndex := 0;
 		else
 			instructionIndex := 1;
 		end if;
-		output_data.jump_pc <= std_logic_vector(signed(in_data.instructions(instructionIndex).pc)+signed(in_data.operands(instructionIndex))); --TODO : consider if needed to add 2 more
+		pc := unsigned_add(in_data.instructions(instructionIndex).pc,1);
+		output_data.jump_pc <= std_logic_vector(signed(pc)+signed(in_data.operands(instructionIndex))); --TODO : consider if needed to add 2 more
 		output_control.jump <= '0';
 		output_control.busy <= '0';
+		output_control.wr <= '0';
+		output_data.write_address <= (others => '1');
+		output_data.write_data <= pc;
 		if (in_control.enable = '1' and in_control.commit = '1') then
-			output_control.jump <= '1';
-			output_control.busy <= '1';
+			register_next.instructionSelect <= in_control.selectInstruction; --instruction select is late 1 clock, because it is selected in stage before bu
+			if (condition(in_data, instructionIndex) = '1') then
+				output_control.jump <= '1';
+				output_control.busy <= '1';
+				if (in_data.instructions(instructionIndex).op = BLAL) then
+					output_control.wr <= '1';
+				end if;
+			end if;
 		end if;
 	end process comb;
 end architecture RTL;

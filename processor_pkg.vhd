@@ -323,6 +323,8 @@ package processor_pkg is
 	function getZ(csr : word_t) return std_logic;
 	function getC(csr : word_t) return std_logic;
 	function getV(csr : word_t) return std_logic;
+		
+	function unsigned_sub(data : std_logic_vector; decrement : natural) return std_logic_vector;
 end package processor_pkg;
 
 package body processor_pkg is
@@ -428,6 +430,17 @@ package body processor_pkg is
 		end if;
 		return ret;
 	end function unsigned_add;
+	
+	function unsigned_sub(data : std_logic_vector; decrement : natural) return std_logic_vector is
+		variable ret : std_logic_vector(data'range);
+	begin
+		if (is_X(data)) then
+			ret := data;
+		else
+			ret := std_logic_vector(unsigned(data) - to_unsigned(decrement, data'length));
+		end if;
+		return ret;
+	end function unsigned_sub;
 	
 	function sign_extend(data : std_logic_vector; length : natural) return std_logic_vector is
 		variable ret : std_logic_vector(length-1 downto 0);

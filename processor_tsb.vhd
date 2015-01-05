@@ -40,6 +40,8 @@ architecture RTL of processor_tsb is
 	signal dm_in_control : data_mem_in_control_t;
 	signal dm_out_data : word_t;
 	signal dm_out_control : data_mem_out_control_t;
+	
+	signal temp : std_logic_vector(31 downto 0);
 begin
 	system_clock : process is
 		variable clk : std_logic;
@@ -56,9 +58,13 @@ begin
 	end process system_clock;
 
 	input:process is
+		variable a, b : word_t;
 	begin
 		taken1 <= '0';
 		taken2 <= '0';
+		a := X"FFFFFFFF";
+		b := X"00000004";
+		temp  <= std_logic_vector(shift_right(unsigned(a), To_integer(Unsigned(b))));
 		be_in_control.selectInstruction <= "00";
 		wait for TRESET + TCLK*20 + 1 ns;
 		taken1 <= '1';

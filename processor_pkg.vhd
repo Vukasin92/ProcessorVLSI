@@ -3,11 +3,16 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 package processor_pkg is
+	constant ALU1 : integer := 0;
+	constant ALU2 : integer := 1;
+	constant LS : integer := 2;
+	constant BRANCH : integer := 3;
 	constant ISSUE_WIDTH : integer := 2;
 	constant REG_NUMBER_EXP : integer := 5;
 	constant FUNCTIONAL_UNITS : integer := 4;
 	constant PARALEL_READS_FROM_REG_FILE : integer := 3;
 	constant PARALEL_WRITES_TO_REG_FILE : integer  := 4;
+	constant ROB_SIZE : integer := 16;
 
 	subtype address_t is std_logic_vector(31 downto 0);
 
@@ -175,6 +180,11 @@ package processor_pkg is
 		csr : word_t;	
 	end record alu_in_data_t;
 	
+	--control unit
+	type cu_in_data_t is record
+		instructions : instruction_array_t;
+		load_reg_number : reg_addr_t;
+	end record cu_in_data_t;
 	--backend
 	
 	type backend_in_data_t is record
@@ -187,6 +197,8 @@ package processor_pkg is
 		taken2 : std_logic;
 		selectInstruction : std_logic_vector(1 downto 0);
 	end record backend_in_control_t;
+	
+	subtype cu_out_control_t is backend_in_control_t;
 
 	type alu_status_t is record
 		busy : std_logic;
@@ -209,6 +221,8 @@ package processor_pkg is
 		bu_status : bu_status_t;
 		jump : std_logic;
 	end record backend_out_control_t;
+	
+	subtype cu_in_control_t is backend_out_control_t;
 	
 	type backend_out_data_t is record
 		jump_pc : address_t;
@@ -325,9 +339,27 @@ package processor_pkg is
 	function getV(csr : word_t) return std_logic;
 		
 	function unsigned_sub(data : std_logic_vector; decrement : natural) return std_logic_vector;
+		
+	function compare(a : std_logic_vector; b : std_logic_vector) return integer;
 end package processor_pkg;
 
 package body processor_pkg is
+	function compare(a : std_logic_vector; b : std_logic_vector) return integer is
+	variable ret : integer;
+	variable temp1, temp2 : integer;
+	begin
+		temp1 := To_integer(Unsigned(a));
+		temp2 := To_integer(Unsigned(b));
+		if (temp1 < temp2) then
+			ret := -1;
+		elsif (temp1 > temp2) then
+			ret := 1;
+		else
+			ret := 0;
+		end if;
+		return ret;
+	end function compare;
+
 	function decode(inst : undecoded_instruction_t; word : word_t) return instruction_t is
 		variable ret : instruction_t;
 	begin

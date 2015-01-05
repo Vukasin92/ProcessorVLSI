@@ -101,11 +101,11 @@ begin
 			register_next.input_control.enable <= '0';
 			register_next.input_control.commit <= '0';
 			if (register_reg.input_control.commit = '1') then
-				if (in_data.instructions(instructionIndex).op = LOAD) then
+				if (register_reg.input_data.instructions(instructionIndex).op = LOAD) then
 					output_control.wr <= '1';
 					output_data.reg_value <= in_data_mem;
 					register_next.output_control_mem.rd <= '0';
-				elsif (in_data.instructions(instructionIndex).op = STORE) then
+				elsif (register_reg.input_data.instructions(instructionIndex).op = STORE) then
 					register_next.output_control_mem.wr <= '0';
 				else
 					report "Wrong instruction in LOAD/STORE Unit about to commit." severity error;

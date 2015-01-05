@@ -70,10 +70,11 @@ begin
 		taken1 <= '1';
 		wait until rising_edge(clock);
 		taken1 <= '0';
-		wait for TCLK*6 + 1 ns;
-		taken2 <= '1';
-		wait for TCLK*6;
-		taken2 <= '0';
+		wait for TCLK*16 + 1 ns;
+		taken1 <= '1';
+		wait until rising_edge(clock);
+		taken1 <= '0';
+		wait for TCLK*8;
 --		taken2 <= '1';
 --		wait for 6*TCLK;
 --		taken2 <= '0';
@@ -139,8 +140,6 @@ begin
 	
 	
 	fe_in_mem <= mem_out_words;
-	be_in_data_mem <= (others => '0');
-	be_in_control_mem <= (others => '0');
 	mem_in_addresses <= fe_out_mem;
 
 	fe_in_control.taken1 <= taken1;

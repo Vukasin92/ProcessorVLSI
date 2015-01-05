@@ -40,6 +40,7 @@ architecture RTL of data_mem is
 			ret.mem_data(i) := (others => '0');
 		end loop;
 		ret.output_word := (others => '0');
+		ret.count := 0;
 		return ret;
 	end function init;
 	
@@ -62,13 +63,6 @@ begin
 		out_control<= output_control;
 		
 		output_control.fc <= '0';
-		
-		if (register_reg.count = 3) then
-			register_next.count <= 0;
-			out_control.fc <= '1';
-		else
-			out_control.fc <= '0';
-		end if;
 		output_data <= register_reg.mem_data(To_integer(Unsigned(in_address)));
 		
 		if (in_control.rd = '1') then
@@ -78,6 +72,13 @@ begin
 			if (register_reg.count = 2) then
 				register_next.mem_data(To_integer(Unsigned(in_address))) <= in_data;
 			end if;
+		end if;
+		
+		if (register_reg.count = 3) then
+			register_next.count <= 0;
+			output_control.fc <= '1';
+		else
+			output_control.fc <= '0';
 		end if;
 	end process;
 	

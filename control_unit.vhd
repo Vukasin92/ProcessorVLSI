@@ -121,7 +121,9 @@ begin
 			end case;
 		end loop;
 	
-		--TODO: commit signal generation (hazzards 1, 4, 6)
+		--TODO: commit signal generation (hazzards 1, 4, 6) - commit must be one CLK late? What about commit in LSU?
+		--generate commit one CLK late. In the meanwhile, update every commit if coresponding rob entry is valid and before jump.
+		--LSU doesn't need to latch commit, it checks always the in_control one. Update in ls_unit.vhd
 		
 		output_control.taken1 <= t1;
 		output_control.taken2 <= t2;

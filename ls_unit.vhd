@@ -100,7 +100,7 @@ begin
 			output_control.busy <= '0';
 			register_next.input_control.enable <= '0';
 			register_next.input_control.commit <= '0';
-			if (register_reg.input_control.commit = '1') then
+			if (register_reg.input_control.commit = '1' and in_control.commit = '1') then
 				if (register_reg.input_data.instructions(instructionIndex).op = LOAD) then
 					output_control.wr <= '1';
 					output_data.reg_value <= in_data_mem;

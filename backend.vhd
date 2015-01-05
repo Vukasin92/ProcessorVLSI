@@ -20,12 +20,7 @@ entity backend is
 	);
 end entity backend;
 
-architecture RTL of backend is
-	constant ALU1 : integer := 0;
-	constant ALU2 : integer := 1;
-	constant LS : integer := 2;
-	constant BRANCH : integer := 3;
-	
+architecture RTL of backend is	
 	signal clock, reset : std_logic;
 	signal jump : std_logic;
 	signal jump_pc : address_t;

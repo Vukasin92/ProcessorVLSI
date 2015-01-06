@@ -23,7 +23,7 @@ architecture RTL of control_unit is
 		instruction : instruction_t;
 	end record rob_elem_t;
 	
-	type registers_commit_t is array(0 to 31) of std_logic_vector(3 downto 0);
+	type registers_commit_t is array(0 to 2**REG_NUMBER_EXP-1) of std_logic_vector(3 downto 0);
 	
 	type rob_t is array (0 to ROB_SIZE-1) of rob_elem_t;
 	
@@ -46,6 +46,9 @@ architecture RTL of control_unit is
 		ret.curr := (others => '0');
 		for i in ret.rob'range loop
 			ret.rob(i).valid := '1';
+		end loop;
+		for i in 0 to 2**REG_NUMBER_EXP-1 loop
+		ret.registers_commit(i) := (others => '0');
 		end loop;
 		return ret;
 	end function init;
@@ -80,8 +83,8 @@ begin
 		--taken1 signal generation
 		if (ins0.valid = '1') then
 			t1 := '1';
-			cmp1 := compare(ins0.reg_src1, in_data.load_reg_number);
-			cmp2 := compare(ins0.reg_src2, in_data.load_reg_number);
+			cmp1 := compare(ins0.reg_src1, in_control.lsu_status.reg_dst);
+			cmp2 := compare(ins0.reg_src2, in_control.lsu_status.reg_dst);
 			if (in_control.lsu_status.busy = '1' and in_control.lsu_status.is_load = '1' and ((cmp1 = 0) or (cmp2 = 0))) then
 				t1 := '0';
 			end if;
@@ -105,8 +108,8 @@ begin
 		--taken2 signal generation;
 		if (ins1.valid = '1' and t1 = '1') then
 			t2 := '1';
-			cmp1 := compare(ins1.reg_src1, in_data.load_reg_number);
-			cmp2 := compare(ins1.reg_src2, in_data.load_reg_number);
+			cmp1 := compare(ins1.reg_src1, in_control.lsu_status.reg_dst);
+			cmp2 := compare(ins1.reg_src2, in_control.lsu_status.reg_dst);
 			if (in_control.lsu_status.busy = '1' and in_control.lsu_status.is_load = '1' and ((cmp1 = 0) or (cmp2 = 0))) then
 				t2 := '0';
 			end if;
@@ -208,9 +211,16 @@ begin
 		if (in_control.jump = '1') then
 			rn := To_integer(Unsigned(in_control.bu_status.rob_number));
 			curr := To_integer(Unsigned(register_reg.curr));
-			while rn /= curr loop
-				rn := (rn+1) mod ROB_SIZE;
-				register_next.rob(rn).valid <= '0';
+			for i in 0 to ROB_SIZE-1 loop
+				if (curr<rn) then --TODO : recheck this conditions
+					if (i<=curr or i>rn) then
+						register_next.rob(i).valid <= '0';
+					end if;
+				else
+					if (i<=curr and i>rn) then
+						register_next.rob(i).valid <= '0';
+					end if;
+				end if;
 			end loop;
 		end if;
 		

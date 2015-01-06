@@ -25,6 +25,8 @@ architecture RTL of of_stage is
 		taken1 : std_logic;
 		taken2 : std_logic;
 		csr : word_t;
+		ls_operand : operand_bundle_t;
+		ls_instruction : instruction_t;
 	end record register_t;
 	
 	signal register_reg : register_t;
@@ -41,6 +43,7 @@ architecture RTL of of_stage is
 			ret.instructions(i).valid := '0';
 			ret.instructions(i).pc := (others => '0');
 			ret.csr := (others => '0');
+			ret.ls_instruction.valid := '0';
 		end loop;
 		return ret;
 	end function init;
@@ -114,9 +117,24 @@ begin
 			end if;
 		end loop;
 		
+		if (((in_control.taken1 = '1' or in_control.taken2 = '1') 
+			and (in_data.instructions(0).op = LOAD or in_data.instructions(0).op = STORE))
+		) then
+			register_next.ls_instruction <= in_data.instructions(0);
+			register_next.ls_operand.reg_a <= in_reg(0);
+			register_next.ls_operand.reg_b <= in_reg(1);
+			register_next.ls_operand.reg_c <= in_reg(2);
+		elsif (in_control.taken2 = '1' and (in_data.instructions(1).op = LOAD or in_data.instructions(1).op = STORE)) then
+			register_next.ls_instruction <= in_data.instructions(1);
+			register_next.ls_operand.reg_a <= in_reg(3);
+			register_next.ls_operand.reg_b <= in_reg(4);
+			register_next.ls_operand.reg_c <= in_reg(5);
+		end if;
+		
 		if (in_control.flush = '1') then
 			for i in register_reg.instructions'range loop
 				register_next.instructions(i).valid <= '0';
+				register_next.ls_instruction.valid <= '0';
 			end loop;
 		end if;
 		
@@ -126,5 +144,7 @@ begin
 		output_data.instructions <= register_reg.instructions;
 		output_data.operands <= register_reg.operands;
 		output_data.csr <= new_csr;
+		output_data.ls_instruction <= register_reg.ls_instruction;
+		output_data.ls_operand <= register_reg.ls_operand;
 	end process comb;
 end architecture RTL;

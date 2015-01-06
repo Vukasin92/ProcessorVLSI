@@ -186,7 +186,6 @@ package processor_pkg is
 	--control unit
 	type cu_in_data_t is record
 		instructions : instruction_array_t;
-		load_reg_number : reg_addr_t;
 	end record cu_in_data_t;
 	--backend
 	

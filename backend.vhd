@@ -176,7 +176,6 @@ begin
 			     
 	lsu_in_control.commit <= in_control.commit(LS);
 	lsu_in_control.enable <= of_out_control.enable(LS);
-	--lsu_in_control.selectInstruction <= in_control.selectInstruction(LS-2);
 	lsu_in_data.instruction <= of_out_data.ls_instruction;
 	lsu_in_data.operand <= of_out_data.ls_operand;
 	out_control.lsu_status.is_load <= lsu_out_control.is_load;
@@ -189,7 +188,7 @@ begin
 	
 	out_control.alu_statuses(ALU1).rob_number <= alu_in_data1.instruction.rob_number;
 	out_control.alu_statuses(ALU2).rob_number <= alu_in_data2.instruction.rob_number;
-	--out_control.lsu_status.rob_number <= lsu_in_data.instructions(to_integer(unsigned(lsu_in_control.selectInstruction))).rob_number;
+	out_control.lsu_status.rob_number <= lsu_in_data.instruction.rob_number;
 	process (bu_in_control.selectInstruction, bu_in_data) is
 	begin
 		if (bu_in_control.selectInstruction = '1') then

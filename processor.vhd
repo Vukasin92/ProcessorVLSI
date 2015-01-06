@@ -17,7 +17,7 @@ entity processor is
 		out_control_data_mem : out processor_out_control_data_mem
 	);
 end entity processor;
-
+--TODO: connect control unit (make the instructions go from frontend to backend through the control unit!!!
 architecture RTL of processor is
 	signal clock, reset : std_logic;
 	
@@ -35,6 +35,11 @@ architecture RTL of processor is
 	signal be_out_control_mem : backend_out_control_data_mem_t;
 	signal be_out_control : backend_out_control_t;
 	signal be_out_data : backend_out_data_t;
+	
+	signal cu_in_data : cu_in_data_t;
+	signal cu_in_control : cu_in_control_t;
+	signal cu_out_data : instruction_array_t;
+	signal cu_out_control : cu_out_control_t;
 begin
 	frontend_inst : entity work.frontend
 		port map(
@@ -59,7 +64,6 @@ begin
 			     out_data		 => be_out_data,
 			     out_control     => be_out_control);
 			     
-	be_in_data.instructions <= fe_out_data.instuctions;
 	fe_in_control.jump <= be_out_control.jump;
 	fe_in_data.jump_pc <= be_out_data.jump_pc;
 	
@@ -72,10 +76,19 @@ begin
 	out_data_ins_mem <= fe_out_mem;
 	out_data_data_mem <= be_out_data_mem;
 	out_control_data_mem <= be_out_control_mem;
-	--TODO : instantiate control unit and connect, change next lines
-	fe_in_control.taken1 <= '0';
-	fe_in_control.taken2 <= '0';
-	be_in_control.taken1 <= '0';
-	be_in_control.taken2 <= '0';
-	be_in_control.commit <= (others => '0');
+	
+	control_unit_inst : entity work.control_unit
+		port map(in_clk      => clock,
+			     in_rst      => reset,
+			     in_data     => cu_in_data,
+			     in_control  => cu_in_control,
+			     out_data    => cu_out_data,
+			     out_control => cu_out_control);
+	
+	be_in_control <= cu_out_control;
+	fe_in_control.taken1 <= cu_out_control.taken1;
+	fe_in_control.taken2 <= cu_out_control.taken2;
+	cu_in_control <= be_out_control;
+	cu_in_data.instructions <= fe_out_data.instuctions;
+	be_in_data.instructions <= cu_out_data;
 end architecture RTL;

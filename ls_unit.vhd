@@ -58,22 +58,17 @@ begin
 		out_control_mem <= output_control_mem;
 		register_next <= register_reg;
 		
+		output_control_mem.rd <= '0';
+		output_control_mem.wr <= '0';
+		output_data_mem.addr <= (others => '0');
+		output_data_mem.data <= (others => '0');
 		
 		output_control.is_load <= '0';
 		output_control.busy <= '0';
 		output_control.wr <= '0';
 		
-		
-		
 		output_data.reg_number <= in_data.instruction.reg_dst;
 		output_data.reg_value <= (others => '0');
-		
-		if (in_control.enable = '1' or register_reg.enable = '1') then
-			output_control.busy <= '1';
-			if (in_data.instruction.op = LOAD) then
-				output_control.is_load <= '1'; --TODO: when checking on hazzard check if busy, if is_load, and reg_number!
-			end if;
-		end if;
 		
 		if (in_control_mem.fc = '1') then
 			output_control.busy <= '0';
@@ -92,8 +87,6 @@ begin
 		end if;
 		
 		if (in_control.enable = '1' or register_reg.enable = '1') then
-			--register_next.input_control <= in_control;
-			--register_next.input_data <= in_data;
 			output_data_mem.addr <= in_data.operand.reg_a;
 			output_data_mem.data <= in_data.operand.reg_c;
 			output_data.reg_number <= in_data.instruction.reg_dst;
@@ -106,6 +99,11 @@ begin
 				output_control.is_load <= '0';
 			else
 				report "Wrong instruction in LOAD/STORE Unit." severity error;
+			end if;
+			
+			output_control.busy <= '1';
+			if (in_data.instruction.op = LOAD) then
+				output_control.is_load <= '1'; --TODO: when checking on hazzard check if busy, if is_load, and reg_number!
 			end if;
 		end if;
 	end process comb;

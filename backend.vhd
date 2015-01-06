@@ -1,5 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 use work.processor_pkg.all;
 
@@ -153,7 +154,7 @@ begin
 	bu_in_data.csr <= of_out_data.csr;
 	bu_in_control.enable <= of_out_control.enable(BRANCH);
 	bu_in_control.commit <= in_control.commit(BRANCH);
-	bu_in_control.selectInstruction <= in_control.selectInstruction(BRANCH-2); --TODO : connect from control unit
+	bu_in_control.selectInstruction <= in_control.selectInstruction; --TODO : connect from control unit
 	jump_pc <= bu_out_data.jump_pc;
 	jump <= bu_out_control.jump;
 	
@@ -175,10 +176,26 @@ begin
 			     
 	lsu_in_control.commit <= in_control.commit(LS);
 	lsu_in_control.enable <= of_out_control.enable(LS);
-	lsu_in_control.selectInstruction <= in_control.selectInstruction(LS-2);
-	lsu_in_data.instructions <= of_out_data.instructions;
-	lsu_in_data.operands <= of_out_data.operands;
+	--lsu_in_control.selectInstruction <= in_control.selectInstruction(LS-2);
+	lsu_in_data.instruction <= of_out_data.ls_instruction;
+	lsu_in_data.operand <= of_out_data.ls_operand;
 	out_control.lsu_status.is_load <= lsu_out_control.is_load;
 	out_control.lsu_status.busy <= lsu_out_control.busy;
 	
+	out_control.alu_statuses(ALU1).reg_dst <= alu_out_data1.reg_dst;
+	out_control.alu_statuses(ALU2).reg_dst <= alu_out_data2.reg_dst;
+	out_control.lsu_status.reg_dst <= lsu_out_data.reg_number;
+	out_control.bu_status.reg_dst <= bu_out_data.reg_dst;
+	
+	out_control.alu_statuses(ALU1).rob_number <= alu_in_data1.instruction.rob_number;
+	out_control.alu_statuses(ALU2).rob_number <= alu_in_data2.instruction.rob_number;
+	--out_control.lsu_status.rob_number <= lsu_in_data.instructions(to_integer(unsigned(lsu_in_control.selectInstruction))).rob_number;
+	process (bu_in_control.selectInstruction, bu_in_data) is
+	begin
+		if (bu_in_control.selectInstruction = '1') then
+			out_control.bu_status.rob_number <= bu_in_data.instructions(1).rob_number;
+		else
+			out_control.bu_status.rob_number <= bu_in_data.instructions(1).rob_number;
+		end if;
+	end process;
 end architecture RTL;

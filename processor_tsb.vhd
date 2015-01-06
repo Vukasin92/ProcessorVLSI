@@ -65,7 +65,7 @@ begin
 		a := X"FFFFFFFF";
 		b := X"00000004";
 		temp  <= std_logic_vector(shift_right(unsigned(a), To_integer(Unsigned(b))));
-		be_in_control.selectInstruction <= "00";
+		be_in_control.selectInstruction <= '0';
 		wait for TRESET + TCLK*20 + 1 ns;
 		taken1 <= '1';
 		wait until rising_edge(clock);

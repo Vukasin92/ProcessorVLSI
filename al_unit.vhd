@@ -152,6 +152,8 @@ begin
 		out_data <= output_data;
 		out_control <= output_control;
 		
+		output_data.reg_dst <= in_data.instruction.reg_dst;
+		
 		output_data.write_address <= in_data.instruction.reg_dst;
 		output_control.wr <= '0';
 		output_control.wr_csr <= '0';

@@ -76,6 +76,7 @@ package processor_pkg is
 		reg_src2 : reg_addr_t;
 		reg_dst : reg_addr_t;
 		kind : kind_t;
+		rob_number : std_logic_vector(3 downto 0);
 	end record instruction_t;
 
 	type instruction_array_t is array (0 to ISSUE_WIDTH - 1) of instruction_t;
@@ -153,6 +154,7 @@ package processor_pkg is
 		jump_pc : address_t;
 		write_address : reg_addr_t; -- always 31 - link register
 		write_data : word_t;
+		reg_dst : reg_addr_t;
 	end record branch_out_data_t;
 		
 	--alu
@@ -172,6 +174,7 @@ package processor_pkg is
 		write_address : reg_addr_t;
 		alu_out : word_t;
 		new_csr : word_t;
+		reg_dst : reg_addr_t;
 	end record alu_out_data_t;
 	
 	type alu_in_data_t is record
@@ -195,13 +198,15 @@ package processor_pkg is
 		commit : std_logic_vector(FUNCTIONAL_UNITS-1 downto 0);
 		taken1 : std_logic;
 		taken2 : std_logic;
-		selectInstruction : std_logic_vector(1 downto 0);
+		selectInstruction : std_logic;
 	end record backend_in_control_t;
 	
 	subtype cu_out_control_t is backend_in_control_t;
 
 	type alu_status_t is record
 		busy : std_logic;
+		rob_number : std_logic_vector(3 downto 0);
+		reg_dst : reg_addr_t;
 	end record;
 
 	type alu_status_array_t is array(0 to 1) of alu_status_t;
@@ -209,10 +214,14 @@ package processor_pkg is
 	type lsu_status_t is record
 		busy : std_logic;
 		is_load : std_logic;
+		rob_number : std_logic_vector(3 downto 0);
+		reg_dst : reg_addr_t;
 	end record lsu_status_t;
 	
 	type bu_status_t is record
 		busy : std_logic;
+		rob_number : std_logic_vector(3 downto 0);
+		reg_dst : reg_addr_t;
 	end record bu_status_t;
 
 	type backend_out_control_t is record
@@ -248,6 +257,8 @@ package processor_pkg is
 		operands : operand_bundle_array_t;
 		instructions : instruction_array_t;
 		csr : word_t;
+		ls_operand : operand_bundle_t;
+		ls_instruction : instruction_t;
 	end record of_out_data_t;
 	
 	type of_out_control_t is record
@@ -298,7 +309,7 @@ package processor_pkg is
 	type ls_unit_in_control_t is record
 		enable : std_logic;
 		commit : std_logic;
-		selectInstruction : std_logic;
+		--selectInstruction : std_logic;
 	end record ls_unit_in_control_t;
 	
 	type ls_unit_out_control_t is record
@@ -308,8 +319,8 @@ package processor_pkg is
 	end record ls_unit_out_control_t;
 	
 	type ls_unit_in_data_t is record
-		operands : operand_bundle_array_t;
-		instructions : instruction_array_t;
+		operand : operand_bundle_t;
+		instruction : instruction_t;
 	end record ls_unit_in_data_t;
 	
 	type ls_unit_out_data_t is record

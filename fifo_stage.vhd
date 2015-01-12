@@ -92,17 +92,19 @@ begin
 		end if;
 		
 		--write logic
-		if (cnt >= 2**BUFFER_SIZE-1) then
-			output_control.stall <= '1';
-		else 
-			for i in in_data.instructions'range loop
-				register_next.fifo_array(To_integer(Unsigned(unsigned_add(register_reg.w_ptr,i)))) <= in_data.instructions(i);
-				if (in_data.instructions(i).valid = '1') then
-					cnt := cnt + 1;
-					to_add := to_add + 1;
-				end if;
-				register_next.w_ptr <= unsigned_add(register_reg.w_ptr, to_add);
-			end loop;	
+		if (in_control.flush /= '1') then
+			if (cnt >= 2**BUFFER_SIZE-1) then
+				output_control.stall <= '1';
+			else 
+				for i in in_data.instructions'range loop
+					register_next.fifo_array(To_integer(Unsigned(unsigned_add(register_reg.w_ptr,i)))) <= in_data.instructions(i);
+					if (in_data.instructions(i).valid = '1') then
+						cnt := cnt + 1;
+						to_add := to_add + 1;
+					end if;
+					register_next.w_ptr <= unsigned_add(register_reg.w_ptr, to_add);
+				end loop;	
+			end if;
 		end if;
 		
 		--output logic

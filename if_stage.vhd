@@ -8,7 +8,7 @@ use work.processor_pkg.all;
 
 entity if_stage is
 	generic(
-		LOAD_FILE_NAME : string  := "insInit.txt"
+		LOAD_FILE_NAME : string  := INSTRUCTIONS_FILE
 	);
 	port(
 		in_clk     : in  std_logic;
@@ -37,8 +37,10 @@ architecture RTL of if_stage is
 		variable rdline : line;
 	begin
 		ret.pc := (others => '0');
+		-- RTL_SYNTHESIS OFF 
 		readline(load_file, rdline);
 		hread(rdline, ret.pc);
+		-- RTL_SYNTHESIS ON
 		return ret;
 	end function init;
 	

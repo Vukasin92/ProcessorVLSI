@@ -70,6 +70,10 @@ begin
 		output_data.reg_number <= in_data.instruction.reg_dst;
 		output_data.reg_value <= (others => '0');
 		
+		if (in_control.enable = '1') then
+			register_next.enable <= '1';
+		end if;
+		
 		if (in_control_mem.fc = '1') then
 			output_control.busy <= '0';
 			register_next.enable <= '0';
@@ -84,9 +88,8 @@ begin
 					report "Wrong instruction in LOAD/STORE Unit about to commit." severity error;
 				end if;
 			end if;
-		end if;
 		
-		if (in_control.enable = '1' or register_reg.enable = '1') then
+		elsif (in_control.enable = '1' or register_reg.enable = '1') then
 			output_data_mem.addr <= in_data.operand.reg_a;
 			output_data_mem.data <= in_data.operand.reg_c;
 			output_data.reg_number <= in_data.instruction.reg_dst;

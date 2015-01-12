@@ -9,7 +9,7 @@ use work.processor_pkg.all;
 entity instruction_mem is
 	generic(
 		ADDRESS_SIZE : integer := 8;
-		LOAD_FILE_NAME : string  := "insInit.txt"
+		LOAD_FILE_NAME : string  := INSTRUCTIONS_FILE
 	);
 	port (
 		in_clk : in std_logic;

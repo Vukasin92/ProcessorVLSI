@@ -13,7 +13,11 @@ package processor_pkg is
 	constant PARALEL_READS_FROM_REG_FILE : integer := 3;
 	constant PARALEL_WRITES_TO_REG_FILE : integer  := 4;
 	constant ROB_SIZE : integer := 16;
+	constant INSTRUCTIONS_FILE : string := "insInit.txt";
+	constant DATA_INIT_FILE : string := "dataInit.txt";
+	constant DATA_FINAL_FILE : string := "dataFinal.txt";
 
+	
 	subtype address_t is std_logic_vector(31 downto 0);
 
 	subtype word_t is std_logic_vector(31 downto 0);
@@ -201,7 +205,7 @@ package processor_pkg is
 	end record backend_in_control_t;
 	
 	subtype cu_out_control_t is backend_in_control_t;
-
+	
 	type alu_status_t is record
 		busy : std_logic;
 		rob_number : std_logic_vector(3 downto 0);
@@ -326,6 +330,8 @@ package processor_pkg is
 		reg_number : reg_addr_t;
 		reg_value : word_t;
 	end record ls_unit_out_data_t;
+	
+	type out_test_t is array (0 to 2**8-1) of word_t;
 	-----------------------------------------
 	function unsigned_add(data : std_logic_vector; increment : natural) return std_logic_vector;
 
@@ -373,7 +379,6 @@ package body processor_pkg is
 	function decode(inst : undecoded_instruction_t; word : word_t) return instruction_t is
 		variable ret : instruction_t;
 	begin
-		--TODO : add spot for reorder buffer index number to fill when instruction is taken from fifo
 		ret.pc    := inst.pc;
 		ret.valid := inst.valid;
 		ret.word  := word;

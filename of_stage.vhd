@@ -109,9 +109,9 @@ begin
 					when BEQ | BGT | BHI | BAL | BLAL =>
 						en(3) := '1';
 					when STOP =>
-						null;--TODO
+						null;
 					when ERROR => 
-						null;--TODO
+						report "Unknown instruction in Operand fetch stage." severity error; --TODO
 					end case;
 				end if;
 			end if;

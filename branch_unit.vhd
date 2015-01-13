@@ -86,14 +86,14 @@ begin
 			instructionIndex := 1;
 		end if;
 		pc := unsigned_add(in_data.instructions(instructionIndex).pc,1);
-		output_data.jump_pc <= std_logic_vector(signed(pc)+signed(in_data.operands(instructionIndex))); --TODO : consider if needed to add 2 more
+		output_data.jump_pc <= std_logic_vector(signed(pc)+signed(in_data.operands(instructionIndex)));
 		output_control.jump <= '0';
 		output_control.busy <= '0';
 		output_control.wr <= '0';
 		output_data.write_address <= (others => '1');
 		output_data.write_data <= pc;
+		register_next.instructionSelect <= in_control.selectInstruction; --instruction select is late 1 clock, because it is selected in stage before bu
 		if (in_control.enable = '1') then
-			register_next.instructionSelect <= in_control.selectInstruction; --instruction select is late 1 clock, because it is selected in stage before bu
 			if (condition(in_data, instructionIndex) = '1') then
 				output_control.jump <= '1';
 				output_control.busy <= '1';

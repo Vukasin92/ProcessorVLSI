@@ -16,7 +16,7 @@ package processor_pkg is
 	constant INSTRUCTIONS_FILE : string := "insInit.txt";
 	constant DATA_INIT_FILE : string := "dataInit.txt";
 	constant DATA_FINAL_FILE : string := "dataFinal.txt";
-
+	constant DATA_ADDRESS_SIZE : integer := 8;
 	
 	subtype address_t is std_logic_vector(31 downto 0);
 
@@ -331,7 +331,7 @@ package processor_pkg is
 		reg_value : word_t;
 	end record ls_unit_out_data_t;
 	
-	type out_test_t is array (0 to 2**8-1) of word_t;
+	type out_test_t is array (0 to 2**DATA_ADDRESS_SIZE-1) of word_t;
 	-----------------------------------------
 	function unsigned_add(data : std_logic_vector; increment : natural) return std_logic_vector;
 

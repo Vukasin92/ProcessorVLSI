@@ -34,7 +34,6 @@ architecture RTL of processor_tsb is
 	
 	signal p_out_stop : std_logic;
 	signal dm_out_test : out_test_t;
-	constant ADDRESS_SIZE : integer := 8;
 begin
 	system_clock : process is
 		variable clk : std_logic;
@@ -51,7 +50,7 @@ begin
 	end process system_clock;
 
 	input:process is
-		type mem_data_array_t is array (0 to 2**ADDRESS_SIZE-1) of word_t;
+		type mem_data_array_t is array (0 to 2**DATA_ADDRESS_SIZE-1) of word_t;
 		variable mem : mem_data_array_t;
 		
 		file load_file1 : text open read_mode is DATA_INIT_FILE;
@@ -73,15 +72,14 @@ begin
 		while not endfile(load_file1) loop
 			readline(load_file1, rdline);
 			hread(rdline, address);
-			hread(rdline, data);
+			read(rdline, data);
 			mem(To_integer(Unsigned(address))) := data;
 		end loop;
 		
-		readline(load_file2, rdline);
 		while not endfile(load_file2) loop
 			readline(load_file2, rdline);
 			hread(rdline, address);
-			hread(rdline, data);
+			read(rdline, data);
 			mem(To_integer(Unsigned(address))) := data;
 		end loop;
 		--compare with actual simulation values
@@ -96,6 +94,7 @@ begin
 		else
 			report "TEST NOK" severity error;
 		end if;
+		
 		wait;
 	end process input;
 	

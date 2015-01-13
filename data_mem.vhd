@@ -25,7 +25,6 @@ entity data_mem is
 		out_test : out out_test_t;
 		out_control : out data_mem_out_control_t
 	);
-	--type mem_data_array_t is array (0 to 2**ADDRESS_SIZE-1) of word_t;
 end entity data_mem;
 
 architecture RTL of data_mem is
@@ -53,11 +52,10 @@ architecture RTL of data_mem is
 		ret.output_word := (others => '0');
 		ret.count := 0;
 		
-		readline(load_file, rdline);
 		while not endfile(load_file) loop
 			readline(load_file, rdline);
 			hread(rdline, address);
-			hread(rdline, data);
+			read(rdline, data);
 			ret.mem_data(To_integer(Unsigned(address))) := data;
 		end loop;
 		return ret;

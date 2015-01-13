@@ -134,8 +134,8 @@ begin
 		if (in_control.flush = '1') then
 			for i in register_reg.instructions'range loop
 				register_next.instructions(i).valid <= '0';
-				register_next.ls_instruction.valid <= '0';
 			end loop;
+			register_next.ls_instruction.valid <= '0';
 		end if;
 		
 		register_next.taken1 <= in_control.taken1;

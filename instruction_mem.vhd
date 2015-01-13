@@ -52,7 +52,7 @@ architecture RTL of instruction_mem is
 		while not endfile(load_file) loop
 			readline(load_file, rdline);
 			hread(rdline, address);
-			hread(rdline, data);
+			read(rdline, data);
 			--hwrite(wrline, address);
 			--hwrite(wrline, data);
 			--writeline(out_file, wrline);

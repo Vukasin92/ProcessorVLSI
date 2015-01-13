@@ -93,20 +93,21 @@ begin
 			output_data_mem.addr <= in_data.operand.reg_a;
 			output_data_mem.data <= in_data.operand.reg_c;
 			output_data.reg_number <= in_data.instruction.reg_dst;
-			
-			if (in_data.instruction.op = LOAD) then
-				output_control_mem.rd <= '1';
-				output_control.is_load <= '1';
-			elsif (in_data.instruction.op = STORE) then
-				output_control_mem.wr <= '1';
-				output_control.is_load <= '0';
-			else
-				report "Wrong instruction in LOAD/STORE Unit." severity error;
-			end if;
-			
-			output_control.busy <= '1';
-			if (in_data.instruction.op = LOAD) then
-				output_control.is_load <= '1'; --TODO: when checking on hazzard check if busy, if is_load, and reg_number!
+			if (in_data.instruction.valid = '1') then
+				if (in_data.instruction.op = LOAD) then
+					output_control_mem.rd <= '1';
+					output_control.is_load <= '1';
+				elsif (in_data.instruction.op = STORE) then
+					output_control_mem.wr <= '1';
+					output_control.is_load <= '0';
+				else
+					report "Wrong instruction in LOAD/STORE Unit." severity error;
+				end if;
+				
+				output_control.busy <= '1';
+				if (in_data.instruction.op = LOAD) then
+					output_control.is_load <= '1'; --TODO: when checking on hazzard check if busy, if is_load, and reg_number!
+				end if;
 			end if;
 		end if;
 	end process comb;

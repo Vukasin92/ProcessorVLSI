@@ -136,7 +136,7 @@ begin
 				
 				cmp1 := compare(ins1.reg_src1, ins0.reg_dst);
 				cmp2 := compare(ins1.reg_src2, ins0.reg_dst);
-				if ((cmp1 = 0) or (cmp2 = 0)) then
+				if (((cmp1 = 0) or (cmp2 = 0)) and ins1.kind = DPR) then
 					t2 := '0';
 				end if;
 				
@@ -171,7 +171,7 @@ begin
 					end if;
 					ins1.rob_number := unsigned_add(register_reg.curr,1);
 					register_next.curr <= unsigned_add(register_reg.curr, 2);
-					register_next.rob(To_integer(Unsigned(register_reg.curr))+1).valid <= '1'; 
+					register_next.rob(To_integer(Unsigned(unsigned_add(register_reg.curr,1)))).valid <= '1'; 
 				end if;
 			end if;
 			
@@ -193,8 +193,21 @@ begin
 			end loop;
 			
 			for i in output_control.commit'range loop
-				if (i<2) then
-					if (register_reg.rob(to_integer(unsigned(in_control.alu_statuses(i).rob_number))).valid = '0' or in_control.jump = '1') then
+			if (i<2) then
+					cmp2 := 1;
+					rn := To_integer(Unsigned(in_control.bu_status.rob_number));
+					curr := To_integer(Unsigned(register_reg.curr));
+					cmp1 := To_integer(Unsigned(in_control.alu_statuses(i).rob_number));
+						if (curr<rn) then --TODO : recheck this conditions
+							if (cmp1<=curr or cmp1>rn) then
+								cmp2 := 0;
+							end if;
+						else
+							if (cmp1<=curr and cmp1>rn) then
+								cmp2 := 0;
+							end if;
+						end if;
+					if (register_reg.rob(to_integer(unsigned(in_control.alu_statuses(i).rob_number))).valid = '0' or (in_control.jump = '1' and cmp2 = 0)) then
 						c(i) := '0';
 					else
 						c(i) := '1';

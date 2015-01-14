@@ -80,6 +80,7 @@ begin
 		out_data <= output_data;
 		out_control <= output_control;
 		
+		output_control.alu1_csr_2_branch <= '0';
 		output_control.commit <= register_reg.commit;
 		output_control.selectInstruction <= '0';
 		ins0 := in_data.instructions(0);
@@ -212,6 +213,10 @@ begin
 					else
 						c(i) := '1';
 					end if;
+					if (cmp2 /= 0 and i=0 and ins0.valid = '1') then
+						output_control.alu1_csr_2_branch <= '1';
+					end if;
+
 					cmp1 := compare(register_reg.registers_commit(to_integer(unsigned(in_control.alu_statuses(i).reg_dst))), in_control.alu_statuses(i).rob_number);
 					if (cmp1 /= 0) then
 						c(i) := '0';

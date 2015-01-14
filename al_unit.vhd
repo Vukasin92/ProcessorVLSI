@@ -76,7 +76,10 @@ architecture RTL of al_unit is
 				ret.output := temp_out(31 downto 0);
 			when MOV | MOVI | SMOV => 
 				ret.output := b;
-			when NOTT => 
+			when NOTT =>
+				--for i in b'range loop 
+					--ret.output(i) := not b(i);
+				--end loop;
 				ret.output := not b;
 			when SL =>
 				ret.output := std_logic_vector(shift_left(unsigned(a), To_integer(Unsigned(b))));

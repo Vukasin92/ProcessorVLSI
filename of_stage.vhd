@@ -59,21 +59,21 @@ begin
 	
 	comb:process (in_control, in_data, register_reg, in_reg, output_data, output_reg, output_control) is
 		variable en : std_logic_vector(FUNCTIONAL_UNITS-1 downto 0);
-		variable new_csr : word_t;
+		--variable new_csr : word_t;
 	begin
 		register_next <= register_reg;
 		out_data <= output_data;
 		out_control <= output_control;
 		out_reg <= output_reg;
 		en := (others => '0');
-		new_csr := register_reg.csr;
+		--new_csr := register_reg.csr;
 		
 		if (in_control.csr_wr(1) = '1') then
 			register_next.csr <= in_data.new_csr(1);
-			new_csr := in_data.new_csr(1);
+			--new_csr := in_data.new_csr(1);
 		elsif (in_control.csr_wr(0) = '1') then
 			register_next.csr <= in_data.new_csr(0);
-			new_csr := in_data.new_csr(0);
+			--new_csr := in_data.new_csr(0);
 		end if;
 		
 		for i in in_data.instructions'range loop
@@ -86,10 +86,12 @@ begin
 			register_next.operands(i).reg_a <= in_reg(3*i);
 			register_next.operands(i).reg_b <= in_reg(3*i+1);
 			register_next.operands(i).reg_c <= in_reg(3*i+2);
-			if (in_data.instructions(i).kind=DPI) then
+			if (in_data.instructions(i).op=SMOV) then
 				register_next.operands(i).imm <= sign_extend(in_data.instructions(i).word(16 downto 0), 32);
-			else
+			elsif (in_data.instructions(i).kind = BBL) then
 				register_next.operands(i).imm <= sign_extend(in_data.instructions(i).word(26 downto 0), 32);
+			else
+				register_next.operands(i).imm <= "000000000000000" & in_data.instructions(i).word(16 downto 0);
 			end if;
 		end loop;
 		
@@ -135,7 +137,6 @@ begin
 			for i in register_reg.instructions'range loop
 				register_next.instructions(i).valid <= '0';
 			end loop;
-			register_next.ls_instruction.valid <= '0';
 		end if;
 		
 		register_next.taken1 <= in_control.taken1;
@@ -143,7 +144,8 @@ begin
 		output_control.enable <= en;
 		output_data.instructions <= register_reg.instructions;
 		output_data.operands <= register_reg.operands;
-		output_data.csr <= new_csr;
+		--output_data.csr <= new_csr;
+		output_data.csr <= register_reg.csr;
 		output_data.ls_instruction <= register_reg.ls_instruction;
 		output_data.ls_operand <= register_reg.ls_operand;
 	end process comb;

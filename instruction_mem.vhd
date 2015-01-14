@@ -54,7 +54,7 @@ architecture RTL of instruction_mem is
 			hread(rdline, address);
 			read(rdline, data);
 			--hwrite(wrline, address);
-			--hwrite(wrline, data);
+			--write(wrline, data);
 			--writeline(out_file, wrline);
 			ret.mem_data(To_integer(Unsigned(address))) := data;
 		end loop;

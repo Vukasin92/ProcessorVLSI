@@ -59,6 +59,9 @@ begin
 		variable address : word_t;
 		variable data : word_t;
 		
+		variable wrline : line;
+		file out_file : text open write_mode is "outMem.txt";
+		
 		variable correct : boolean;
 	begin
 		wait until p_out_stop = '1';
@@ -81,6 +84,11 @@ begin
 			hread(rdline, address);
 			read(rdline, data);
 			mem(To_integer(Unsigned(address))) := data;
+			
+			hwrite(wrline, address);
+			writeline(out_file, wrline);
+			write(wrline, dm_out_test(To_integer(Unsigned(address))));
+			writeline(out_file, wrline);
 		end loop;
 		--compare with actual simulation values
 		for i in mem'range loop

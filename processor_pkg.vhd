@@ -202,6 +202,7 @@ package processor_pkg is
 		taken1 : std_logic;
 		taken2 : std_logic;
 		selectInstruction : std_logic;
+		alu1_csr_2_branch : std_logic;
 	end record backend_in_control_t;
 	
 	subtype cu_out_control_t is backend_in_control_t;

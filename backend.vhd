@@ -151,7 +151,13 @@ begin
 	bu_in_data.instructions <= of_out_data.instructions;
 	bu_in_data.operands(0) <= of_out_data.operands(0).imm;
 	bu_in_data.operands(1) <= of_out_data.operands(1).imm;
-	bu_in_data.csr <= of_out_data.csr;
+	process (of_out_data.csr, alu_out_control1.wr_csr, alu_out_data1.new_csr, in_control) is
+	begin
+		bu_in_data.csr <= of_out_data.csr;
+		if (alu_out_control1.wr_csr = '1' and in_control.alu1_csr_2_branch = '1') then
+			bu_in_data.csr <= alu_out_data1.new_csr;
+		end if;
+	end process;
 	bu_in_control.enable <= of_out_control.enable(BRANCH);
 	bu_in_control.commit <= in_control.commit(BRANCH);
 	bu_in_control.selectInstruction <= in_control.selectInstruction; --TODO : connect from control unit

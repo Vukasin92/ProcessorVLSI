@@ -10,7 +10,7 @@ use work.processor_pkg.all;
 
 entity data_mem is
 	generic(
-		ADDRESS_SIZE : integer := 8;
+		ADDRESS_SIZE : integer := 12;
 		LOAD_FILE_NAME : string  := DATA_INIT_FILE
 	);
 	port (

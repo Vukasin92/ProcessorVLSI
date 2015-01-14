@@ -8,7 +8,7 @@ use work.processor_pkg.all;
 
 entity instruction_mem is
 	generic(
-		ADDRESS_SIZE : integer := 8;
+		ADDRESS_SIZE : integer := 12;
 		LOAD_FILE_NAME : string  := INSTRUCTIONS_FILE
 	);
 	port (

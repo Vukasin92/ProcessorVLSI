@@ -16,7 +16,7 @@ package processor_pkg is
 	constant INSTRUCTIONS_FILE : string := "insInit.txt";
 	constant DATA_INIT_FILE : string := "dataInit.txt";
 	constant DATA_FINAL_FILE : string := "dataFinal.txt";
-	constant DATA_ADDRESS_SIZE : integer := 8;
+	constant DATA_ADDRESS_SIZE : integer := 12;
 	
 	subtype address_t is std_logic_vector(31 downto 0);
 

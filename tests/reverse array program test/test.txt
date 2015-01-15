@@ -1,0 +1,33 @@
+org 10
+movi r30, 100
+movi r0, 200
+movi r1, 100
+movi r2, 1
+store r30, r0
+add r30, r30, r2
+store r30, r1
+add r30, r30, r2
+blal 30
+stop
+org 30
+mov r29, r30
+sub r29, r29, r2
+load r3, r29
+sub r29, r29, r2
+load r4, r29
+mov r5, r3
+sr r5, r2, r5
+add r8, r3, r4
+sub r8, r8, r2
+load r6, r4
+load r7, r8
+store r4, r7
+store r8, r6
+add r4, r4, r2
+sub r8, r8, r2
+sub r5, r5, r2
+beq 42
+bal 39
+movi r29, 19
+cmp r31, r29
+beq 19

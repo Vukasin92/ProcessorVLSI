@@ -195,12 +195,12 @@ begin
 	out_control.alu_statuses(ALU1).rob_number <= alu_in_data1.instruction.rob_number;
 	out_control.alu_statuses(ALU2).rob_number <= alu_in_data2.instruction.rob_number;
 	out_control.lsu_status.rob_number <= lsu_in_data.instruction.rob_number;
-	process (bu_in_control.selectInstruction, bu_in_data) is
+	process (bu_out_control.selectInstruction, bu_in_data) is
 	begin
-		if (bu_in_control.selectInstruction = '1') then
+		if (bu_out_control.selectInstruction = '1') then
 			out_control.bu_status.rob_number <= bu_in_data.instructions(1).rob_number;
 		else
-			out_control.bu_status.rob_number <= bu_in_data.instructions(1).rob_number;
+			out_control.bu_status.rob_number <= bu_in_data.instructions(0).rob_number;
 		end if;
 	end process;
 end architecture RTL;

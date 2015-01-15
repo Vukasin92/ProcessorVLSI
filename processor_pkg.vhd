@@ -151,6 +151,7 @@ package processor_pkg is
 		busy : std_logic;
 		jump : std_logic;
 		wr : std_logic;
+		selectInstruction : std_logic;
 	end record branch_out_control_t;
 	
 	type branch_out_data_t is record

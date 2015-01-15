@@ -77,7 +77,6 @@ begin
 		out_data <= output_data;
 		out_control <= output_control;
 		register_next <= register_reg;
-		
 		output_data.reg_dst <= "11111";
 		
 		if (register_reg.instructionSelect = '0') then
@@ -94,6 +93,7 @@ begin
 		output_data.write_data <= pc;
 		register_next.instructionSelect <= in_control.selectInstruction; --instruction select is late 1 clock, because it is selected in stage before bu
 		if (in_control.enable = '1') then
+			output_control.selectInstruction <= register_reg.instructionSelect;
 			if (condition(in_data, instructionIndex) = '1') then
 				output_control.jump <= '1';
 				output_control.busy <= '1';

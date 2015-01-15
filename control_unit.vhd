@@ -35,7 +35,7 @@ architecture RTL of control_unit is
 		stop : std_logic;
 		rob : rob_t;
 		curr : std_logic_vector(3 downto 0);
-		commit : std_logic_vector(3 downto 0);
+		--commit : std_logic_vector(3 downto 0);
 		registers_commit : registers_commit_t;
 	end record register_t;
 	
@@ -54,7 +54,7 @@ architecture RTL of control_unit is
 		end loop;
 		ret.stop := '0';
 		for i in 0 to 2**REG_NUMBER_EXP-1 loop
-		ret.registers_commit(i) := (others => '0');
+		--ret.registers_commit(i) := (others => '0');
 		end loop;
 		return ret;
 	end function init;
@@ -81,7 +81,8 @@ begin
 		out_control <= output_control;
 		
 		output_control.alu1_csr_2_branch <= '0';
-		output_control.commit <= register_reg.commit;
+		--output_control.commit <= register_reg.commit;
+		output_control.commit <= "0000";
 		output_control.selectInstruction <= '0';
 		ins0 := in_data.instructions(0);
 		ins1 := in_data.instructions(1);
@@ -196,22 +197,21 @@ begin
 			for i in output_control.commit'range loop
 			if (i<2) then
 					cmp2 := 1;
-					rn := To_integer(Unsigned(in_control.bu_status.rob_number));
-					curr := To_integer(Unsigned(register_reg.curr));
-					cmp1 := To_integer(Unsigned(in_control.alu_statuses(i).rob_number));
-						if (curr<rn) then --TODO : recheck this conditions
+					c(i) := '1';
+					rn := To_integer(Unsigned(in_control.bu_status.rob_number));--7
+					curr := To_integer(Unsigned(register_reg.curr));--9
+					cmp1 := To_integer(Unsigned(in_control.alu_statuses(i).rob_number));--8
+						if (curr<=rn) then --TODO : recheck this conditions
 							if (cmp1<=curr or cmp1>rn) then
 								cmp2 := 0;
 							end if;
 						else
-							if (cmp1<=curr and cmp1>rn) then
+							if (cmp1>rn and cmp1<=curr) then --TODO: !!!! error
 								cmp2 := 0;
 							end if;
 						end if;
 					if (register_reg.rob(to_integer(unsigned(in_control.alu_statuses(i).rob_number))).valid = '0' or (in_control.jump = '1' and cmp2 = 0)) then
 						c(i) := '0';
-					else
-						c(i) := '1';
 					end if;
 					if (cmp2 /= 0 and i=0 and ins0.valid = '1') then
 						output_control.alu1_csr_2_branch <= '1';
@@ -223,9 +223,8 @@ begin
 					end if;
 				end if;
 				if (i = 2) then
-					if (register_reg.rob(to_integer(unsigned(in_control.lsu_status.rob_number))).valid = '1') then
-						c(i) := '1';
-					else
+					c(i) := '1';
+					if (register_reg.rob(to_integer(unsigned(in_control.lsu_status.rob_number))).valid = '0') then
 						c(i) := '0';
 					end if;
 					cmp1 := compare(register_reg.registers_commit(to_integer(unsigned(in_control.lsu_status.reg_dst))), in_control.lsu_status.rob_number);
@@ -234,9 +233,8 @@ begin
 					end if;
 				end if;
 				if (i = 3) then
-					if (register_reg.rob(to_integer(unsigned(in_control.bu_status.rob_number))).valid = '1') then
-						c(i) := '1';
-					else
+					c(i) := '1';
+					if (register_reg.rob(to_integer(unsigned(in_control.bu_status.rob_number))).valid = '0') then
 						c(i) := '0';
 					end if;
 					cmp1 := compare(register_reg.registers_commit(to_integer(unsigned(in_control.bu_status.reg_dst))), in_control.bu_status.rob_number);
@@ -258,12 +256,12 @@ begin
 				rn := To_integer(Unsigned(in_control.bu_status.rob_number));
 				curr := To_integer(Unsigned(register_reg.curr));
 				for i in 0 to ROB_SIZE-1 loop
-					if (curr<rn) then --TODO : recheck this conditions
+					if (curr<=rn) then --TODO : recheck this conditions
 						if (i<=curr or i>rn) then
 							register_next.rob(i).valid <= '0';
 						end if;
 					else
-						if (i<=curr and i>rn) then
+						if (i>rn and i<=curr) then
 							register_next.rob(i).valid <= '0';
 						end if;
 					end if;

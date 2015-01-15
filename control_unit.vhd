@@ -100,7 +100,9 @@ begin
 				t1 := '1';
 				cmp1 := compare(ins0.reg_src1, in_control.lsu_status.reg_dst);
 				cmp2 := compare(ins0.reg_src2, in_control.lsu_status.reg_dst);
-				if (in_control.lsu_status.busy = '1' and in_control.lsu_status.is_load = '1' and ((cmp1 = 0) or (cmp2 = 0))) then
+				if (in_control.lsu_status.busy = '1' and in_control.lsu_status.is_load = '1' and ((cmp1 = 0) or (cmp2 = 0)) 
+					and (compare(in_control.lsu_status.rob_number, register_reg.registers_commit(To_integer(Unsigned(in_control.lsu_status.reg_dst))))=0))
+				 then
 					t1 := '0';
 				end if;
 				if (in_control.lsu_status.busy = '1' and (ins0.op = LOAD or ins0.op = STORE)) then
@@ -132,7 +134,9 @@ begin
 				t2 := '1';
 				cmp1 := compare(ins1.reg_src1, in_control.lsu_status.reg_dst);
 				cmp2 := compare(ins1.reg_src2, in_control.lsu_status.reg_dst);
-				if (in_control.lsu_status.busy = '1' and in_control.lsu_status.is_load = '1' and ((cmp1 = 0) or (cmp2 = 0))) then
+				if (in_control.lsu_status.busy = '1' and in_control.lsu_status.is_load = '1' and ((cmp1 = 0) or (cmp2 = 0)) 
+					and (compare(in_control.lsu_status.rob_number, register_reg.registers_commit(To_integer(Unsigned(in_control.lsu_status.reg_dst))))=0))
+				 then
 					t2 := '0';
 				end if;
 				
@@ -185,7 +189,7 @@ begin
 						when BEQ | BHI | BLAL | BAL| BGT => 
 							if (i = 0) then
 								output_control.selectInstruction <= '0';
-							else
+							elsif (t2 = '1') then
 								output_control.selectInstruction <= '1';
 							end if;
 						when others => 
@@ -228,7 +232,7 @@ begin
 						c(i) := '0';
 					end if;
 					cmp1 := compare(register_reg.registers_commit(to_integer(unsigned(in_control.lsu_status.reg_dst))), in_control.lsu_status.rob_number);
-					if (cmp1 /= 0 and in_control.lsu_status.is_load = '1') then
+					if (cmp1 /= 0) then
 						c(i) := '0';
 					end if;
 				end if;

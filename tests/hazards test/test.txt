@@ -1,0 +1,69 @@
+org 20
+movi r1, 1
+movi r2, 0
+add r31, r1, r1
+blal 30
+org 30
+store r2, r31
+add r2, r2, r1
+add r3, r1, r1
+sub r3, r1, r1
+store r2, r3
+add r2, r2, r1
+and r16, r16, r16
+and r17, r17, r17
+and r16, r16, r16
+and r17, r17, r17
+and r16, r16, r16
+and r17, r17, r17
+add r4, r1, r1
+store r2, r4
+add r2, r2, r1
+and r16, r16, r16
+and r17, r17, r17
+and r16, r16, r16
+and r17, r17, r17
+and r16, r16, r16
+and r17, r17, r17
+sub r5, r2, r1
+load r6, r5
+store r2, r6
+add r2, r2, r1
+add r6, r6, r1
+add r7, r6, r6
+store r2, r7
+add r2, r2, r1
+and r16, r16, r16
+and r17, r17, r17
+and r16, r16, r16
+and r17, r17, r17
+and r16, r16, r16
+and r17, r17, r17
+bal 60
+store r1, r7
+org 60
+bal 70
+add r7, r7, r1
+org 70
+add r7, r7, r1
+bal 80
+org 80
+store r2, r7
+add r2, r2, r1
+and r16, r16, r16
+and r17, r17, r17
+and r16, r16, r16
+and r17, r17, r17
+and r16, r16, r16
+and r17, r17, r17
+load r9, r2
+add r9, r1, r1
+add r9, r9, r1
+store r2, r9
+add r2, r2, r1
+sub r11, r2, r1
+load r10, r11
+add r12, r1, r1
+add r13, r10, r1
+store r2, r13
+stop

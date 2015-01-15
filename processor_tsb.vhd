@@ -89,6 +89,8 @@ begin
 			writeline(out_file, wrline);
 			write(wrline, dm_out_test(To_integer(Unsigned(address))));
 			writeline(out_file, wrline);
+			write(wrline, data);
+			writeline(out_file, wrline);
 		end loop;
 		--compare with actual simulation values
 		for i in mem'range loop

@@ -82,11 +82,11 @@ architecture RTL of al_unit is
 				--end loop;
 				ret.output := not b;
 			when SL =>
-				ret.output := std_logic_vector(shift_left(unsigned(a), To_integer(Unsigned(b))));
+				ret.output := std_logic_vector(shift_left(unsigned(b), To_integer(Unsigned(a))));
 			when SR => 
-				ret.output := std_logic_vector(shift_right(unsigned(a), To_integer(Unsigned(b))));
+				ret.output := std_logic_vector(shift_right(unsigned(b), To_integer(Unsigned(a))));
 			when ASR => 
-				ret.output := std_logic_vector(shift_right(signed(a), To_integer(Unsigned(b))));
+				ret.output := std_logic_vector(shift_right(signed(b), To_integer(Unsigned(a))));
 			when others => 
 				null;
 		end case;

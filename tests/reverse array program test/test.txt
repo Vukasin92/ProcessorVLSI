@@ -16,7 +16,7 @@ load r3, r29
 sub r29, r29, r2
 load r4, r29
 mov r5, r3
-sr r5, r2, r5
+sr r5, r5, r2
 add r8, r3, r4
 sub r8, r8, r2
 load r6, r4

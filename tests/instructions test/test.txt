@@ -22,7 +22,7 @@ sadc r0, r0, r1
 store r0, r6
 bal 50
 org 50
-sl r6, r1, r6
+sl r6, r6, r1
 not r8, r6
 add r0, r0, r1
 store r0, r8
@@ -31,9 +31,9 @@ org 60
 smovi r2, 10000
 movi, r3, 10000
 movi r4, 10
-asr r3, r4, r3
-asr r2, r4, r2
-sr r2, r1, r2
+asr r3, r3, r4
+asr r2, r2, r4
+sr r2, r2, r1
 add r0, r0, r1
 store r0, r3
 add r0, r0, r31

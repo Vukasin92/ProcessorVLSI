@@ -77,6 +77,7 @@ begin
 		out_data <= output_data;
 		out_control <= output_control;
 		register_next <= register_reg;
+		output_control.selectInstruction <= '0';
 		output_data.reg_dst <= "11111";
 		
 		if (register_reg.instructionSelect = '0') then
